@@ -1,0 +1,187 @@
+/* Keep the plugin visually aligned with the native WordPress admin UI. */
+.mivama-media-folder-select,
+#mivama-media-folder-filter,
+#mivama-bulk-folder-target,
+.compat-field-mivama_media_folder_term_id select {
+    max-width: 220px;
+}
+
+#mivama-bulk-folder-target,
+.mivama-new-folder-trigger,
+.mivama-save-folder-button {
+    margin-left: 4px;
+}
+
+.compat-field-mivama_media_folder_term_id .mivama-folder-control,
+.mivama-folder-control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    max-width: 520px;
+}
+
+.compat-field-mivama_media_folder_term_id .mivama-media-folder-select,
+.mivama-folder-control .mivama-media-folder-select {
+    flex: 1 1 180px;
+}
+
+.compat-field-mivama_media_folder_term_id .help,
+.mivama-folder-control .help {
+    flex-basis: 100%;
+    margin: 2px 0 0;
+    color: #646970;
+}
+
+.mivama-folder-status {
+    flex-basis: 100%;
+    min-height: 18px;
+    margin: 2px 0 0;
+    color: #646970;
+    font-size: 12px;
+}
+
+.mivama-folder-status.is-success {
+    color: #008a20;
+}
+
+.mivama-folder-status.is-error {
+    color: #d63638;
+}
+
+.mivama-folder-status.is-loading {
+    color: #646970;
+}
+
+.mivama-folder-empty {
+    color: #646970;
+}
+
+.media-frame select.attachment-filters#media-attachment-mivama-folder-filter {
+    max-width: 220px;
+}
+
+.media-frame .mivama-new-folder-media-button {
+    margin-left: 6px;
+}
+
+.mivama-folder-modal {
+    display: none;
+}
+
+.mivama-folder-modal.is-visible {
+    display: block;
+}
+
+.mivama-folder-modal .media-modal-backdrop {
+    z-index: 160000;
+}
+
+.mivama-folder-dialog.media-modal {
+    display: block;
+    position: fixed;
+    z-index: 160001;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 520px;
+    max-width: calc(100% - 40px);
+    min-height: 0;
+    transform: translate(-50%, -50%);
+}
+
+.mivama-folder-dialog .media-modal-content {
+    position: static;
+    min-height: 0;
+}
+
+.mivama-folder-dialog .media-frame-title,
+.mivama-folder-dialog .media-frame-content,
+.mivama-folder-dialog .media-frame-toolbar {
+    position: static;
+}
+
+.mivama-folder-dialog .media-frame-title {
+    height: auto;
+    padding: 0 50px 0 16px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.mivama-folder-dialog .media-frame-title h1 {
+    margin: 0;
+    padding: 14px 0;
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+.mivama-folder-dialog-content {
+    padding: 16px;
+    background: #fff;
+}
+
+.mivama-folder-dialog-content .form-field {
+    margin: 0 0 16px;
+}
+
+.mivama-folder-dialog-content .form-field label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.mivama-folder-dialog-content input[type="text"],
+.mivama-folder-dialog-content select {
+    width: 100%;
+    max-width: none;
+}
+
+.mivama-folder-modal__message {
+    min-height: 18px;
+    margin: 8px 0 0;
+    color: #646970;
+}
+
+.mivama-folder-modal__message.is-success {
+    color: #008a20;
+}
+
+.mivama-folder-modal__message.is-error {
+    color: #d63638;
+}
+
+.mivama-folder-dialog .media-frame-toolbar {
+    height: auto;
+    padding: 12px 16px;
+    border-top: 1px solid #dcdcde;
+    background: #f6f7f7;
+    text-align: right;
+}
+
+.mivama-folder-dialog .media-frame-toolbar .button {
+    margin-left: 6px;
+}
+
+.mivama-media-folders-page #col-left .col-wrap,
+.mivama-media-folders-page #col-right .col-wrap {
+    padding-top: 0;
+}
+
+.mivama-media-folders-page .wp-list-table td,
+.mivama-media-folders-page .wp-list-table th {
+    vertical-align: middle;
+}
+
+@media (max-width: 782px) {
+    #mivama-bulk-folder-target,
+    .mivama-new-folder-trigger,
+    .mivama-save-folder-button {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+
+    .mivama-folder-dialog.media-modal {
+        width: calc(100% - 24px);
+        max-width: calc(100% - 24px);
+    }
+}
