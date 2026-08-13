@@ -26,7 +26,7 @@ class Mivama_Media_Folders_Attachment_Assignment_Test extends WP_UnitTestCase
 
         $terms = wp_get_object_terms($attachment_id, Mivama_Media_Folders::TAXONOMY, array('fields' => 'ids'));
         $this->assertSame(array((int) $folder['term_id']), array_map('intval', $terms));
-        $this->assertNull(term_exists((string) $folder['term_id'], Mivama_Media_Folders::TAXONOMY));
+        $this->assertFalse(get_term_by('name', (string) $folder['term_id'], Mivama_Media_Folders::TAXONOMY));
 
         apply_filters(
             'attachment_fields_to_save',
