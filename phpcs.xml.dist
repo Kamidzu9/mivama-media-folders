@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="Mivama Media Folders">
+  <description>WordPress coding standards and plugin-specific exclusions.</description>
+  <file>mivama-media-folders.php</file>
+  <file>includes</file>
+  <file>tests</file>
+  <arg name="basepath" value="."/>
+  <arg name="colors"/>
+  <arg value="sp"/>
+  <config name="minimum_supported_wp_version" value="6.0"/>
+  <rule ref="WordPress"/>
+  <rule ref="WordPress-Docs"/>
+  <exclude-pattern>vendor/*</exclude-pattern>
+</ruleset>
