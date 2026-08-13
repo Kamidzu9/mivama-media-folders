@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y subversion mysql-client zip
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Quality gates
+        run: |
+          composer lint
+          composer phpcs
+          composer compat
+          composer version
+          node --check assets/admin.js
+      - name: Verify tag matches plugin version
+        run: |
+          VERSION="$(php -r '$c=file_get_contents("mivama-media-folders.php"); preg_match("/^ \\* Version:\\s*([^\\s]+)$/m",$c,$m); echo $m[1];')"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}"
+      - name: Install WordPress tests
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
+      - name: Test
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        run: composer test
+      - name: Build release ZIP
+        run: bash bin/build-release.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mivama-media-folders
+          path: dist/mivama-media-folders.zip
+          if-no-files-found: error
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: mivama-media-folders
+          path: dist
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/mivama-media-folders.zip --verify-tag --generate-notes
