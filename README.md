@@ -30,7 +30,48 @@ Folders are stored as a private hierarchical taxonomy attached to media items. T
 
 ## Development
 
-The repository contains the standalone plugin only. It was extracted from the former `mivama-digital/mivama-wordpress` repository so it can be maintained and released independently.
+Install development dependencies:
+
+```bash
+composer install
+```
+
+Run the local quality gate:
+
+```bash
+composer check
+```
+
+The repository checks PHP syntax, WordPress coding standards, PHP 7.4+ compatibility, version consistency and PHPUnit integration tests.
+
+### WordPress integration tests
+
+Install a WordPress test suite and run PHPUnit:
+
+```bash
+bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
+composer test
+```
+
+GitHub Actions tests the minimum supported WordPress 6.0 branch and the current stable WordPress branch across representative PHP versions.
+
+## Releases
+
+Build an installable plugin archive with:
+
+```bash
+bash bin/build-release.sh
+```
+
+The generated archive is `dist/mivama-media-folders.zip`. Release tags use `vX.Y.Z`; the tag, plugin header, class version constant and WordPress `Stable tag` must remain consistent. Tagged releases are verified, tested, packaged and published through GitHub Actions.
+
+## Security
+
+See `SECURITY.md` for vulnerability reporting guidance.
+
+## Contributing
+
+See `CONTRIBUTING.md` before opening a pull request.
 
 ## License
 
