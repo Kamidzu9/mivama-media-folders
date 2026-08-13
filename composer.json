@@ -1,0 +1,38 @@
+{
+  "name": "mivama-digital/mivama-media-folders",
+  "description": "Hierarchical folders for the native WordPress Media Library without moving files.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "php-parallel-lint/php-parallel-lint": "^1.4",
+    "phpcompatibility/php-compatibility": "^9.3",
+    "phpunit/phpunit": "^9.6",
+    "squizlabs/php_codesniffer": "^3.10",
+    "wp-coding-standards/wpcs": "^3.1"
+  },
+  "scripts": {
+    "lint": "parallel-lint --exclude vendor .",
+    "phpcs": "phpcs -q",
+    "phpcbf": "phpcbf",
+    "compat": "phpcs -q --standard=PHPCompatibility --runtime-set testVersion 7.4- mivama-media-folders.php includes tests",
+    "test": "phpunit",
+    "version": "php bin/check-version.php",
+    "check": [
+      "@lint",
+      "@phpcs",
+      "@compat",
+      "@version",
+      "@test"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  }
+}
