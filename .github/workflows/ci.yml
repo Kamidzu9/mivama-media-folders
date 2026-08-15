@@ -37,8 +37,8 @@ jobs:
           tools: composer:v2
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
-      - name: Validate Composer metadata
-        run: composer validate --strict --no-check-lock
+      - name: Validate Composer metadata and lockfile
+        run: composer validate --strict
       - name: WordPress coding standards
         run: composer phpcs
       - name: PHP 7.4+ compatibility
