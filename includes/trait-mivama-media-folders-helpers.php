@@ -1,10 +1,26 @@
 <?php
+/**
+ * Shared media folder helpers.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Provides shared folder lookup, assignment, rendering, and tree helpers.
+ */
 trait Mivama_Media_Folders_Helpers {
 
+	/**
+	 * Create a folder or return the matching existing folder.
+	 *
+	 * @param string $name      Folder name.
+	 * @param int    $parent_id Optional parent term ID.
+	 * @return array|WP_Error Folder result or error.
+	 */
 	private function create_or_get_folder( $name, $parent_id = 0 ) {
 		$name      = trim( wp_strip_all_tags( (string) $name ) );
 		$parent_id = absint( $parent_id );
@@ -37,6 +53,13 @@ trait Mivama_Media_Folders_Helpers {
 		);
 	}
 
+	/**
+	 * Assign exactly one folder to an attachment, or clear its folder.
+	 *
+	 * @param int $attachment_id Attachment post ID.
+	 * @param int $folder_id     Folder term ID, or zero to clear.
+	 * @return true|WP_Error True on success or error on invalid input/write failure.
+	 */
 	private function assign_attachment_folder( $attachment_id, $folder_id ) {
 		$attachment_id = absint( $attachment_id );
 		$folder_id     = absint( $folder_id );
@@ -56,11 +79,23 @@ trait Mivama_Media_Folders_Helpers {
 		return is_wp_error( $result ) ? $result : true;
 	}
 
+	/**
+	 * Determine whether a folder term exists.
+	 *
+	 * @param int $folder_id Folder term ID.
+	 * @return bool Whether the folder exists.
+	 */
 	private function folder_exists_by_id( $folder_id ) {
 		$term = get_term( absint( $folder_id ), self::TAXONOMY );
 		return $term && ! is_wp_error( $term );
 	}
 
+	/**
+	 * Get the first assigned folder for an attachment.
+	 *
+	 * @param int $attachment_id Attachment post ID.
+	 * @return int Folder term ID or zero when unassigned.
+	 */
 	private function get_attachment_folder_id( $attachment_id ) {
 		$terms = wp_get_object_terms( $attachment_id, self::TAXONOMY, array( 'fields' => 'ids' ) );
 		if ( is_wp_error( $terms ) || empty( $terms ) ) {
@@ -70,6 +105,12 @@ trait Mivama_Media_Folders_Helpers {
 		return absint( $terms[0] );
 	}
 
+	/**
+	 * Render option markup for the Media Library folder filter.
+	 *
+	 * @param string $selected Selected filter value.
+	 * @return string Escaped option markup.
+	 */
 	private function render_folder_filter_options( $selected = '' ) {
 		$selected = (string) $selected;
 		$html     = '<option value=""' . selected( $selected, '', false ) . '>' . esc_html__( 'All folders', 'mivama-media-folders' ) . '</option>';
@@ -89,6 +130,14 @@ trait Mivama_Media_Folders_Helpers {
 		return $html;
 	}
 
+	/**
+	 * Render option markup for a folder selector.
+	 *
+	 * @param int    $selected        Selected folder term ID.
+	 * @param string $placeholder     Placeholder label for the root option.
+	 * @param int    $exclude_term_id Term and descendants to exclude.
+	 * @return string Escaped option markup.
+	 */
 	private function render_folder_select_options( $selected = 0, $placeholder = '', $exclude_term_id = 0 ) {
 		$selected = (string) absint( $selected );
 		$html     = sprintf( '<option value="0"%s>%s</option>', selected( $selected, '0', false ), esc_html( $placeholder ) );
@@ -111,6 +160,11 @@ trait Mivama_Media_Folders_Helpers {
 		return $html;
 	}
 
+	/**
+	 * Get flattened folder options for JavaScript consumers.
+	 *
+	 * @return array Folder option records.
+	 */
 	private function get_folder_options_for_js() {
 		$folders = array();
 		foreach ( $this->get_folder_tree() as $folder ) {
@@ -126,12 +180,19 @@ trait Mivama_Media_Folders_Helpers {
 		return $folders;
 	}
 
-	private function get_folder_tree( $parent = 0, $depth = 0 ) {
+	/**
+	 * Build a flattened, depth-aware folder tree.
+	 *
+	 * @param int $parent_id Parent folder term ID.
+	 * @param int $depth     Current tree depth.
+	 * @return array Folder tree records.
+	 */
+	private function get_folder_tree( $parent_id = 0, $depth = 0 ) {
 		$terms = get_terms(
 			array(
 				'taxonomy'   => self::TAXONOMY,
 				'hide_empty' => false,
-				'parent'     => absint( $parent ),
+				'parent'     => absint( $parent_id ),
 				'orderby'    => 'name',
 				'order'      => 'ASC',
 			)
@@ -170,6 +231,12 @@ trait Mivama_Media_Folders_Helpers {
 		return $tree;
 	}
 
+	/**
+	 * Format a taxonomy term for the JavaScript folder selector.
+	 *
+	 * @param WP_Term $term Folder term.
+	 * @return array JavaScript-friendly term data.
+	 */
 	private function format_term_for_js( $term ) {
 		$depth = $this->get_term_depth( (int) $term->term_id );
 		return array(
@@ -181,6 +248,12 @@ trait Mivama_Media_Folders_Helpers {
 		);
 	}
 
+	/**
+	 * Calculate the nesting depth of a folder term.
+	 *
+	 * @param int $term_id Folder term ID.
+	 * @return int Folder depth.
+	 */
 	private function get_term_depth( $term_id ) {
 		$depth = 0;
 		$term  = get_term( $term_id, self::TAXONOMY );
@@ -193,6 +266,13 @@ trait Mivama_Media_Folders_Helpers {
 		return $depth;
 	}
 
+	/**
+	 * Determine whether a folder is a descendant of another folder.
+	 *
+	 * @param int $term_id     Candidate descendant term ID.
+	 * @param int $ancestor_id Candidate ancestor term ID.
+	 * @return bool Whether the term descends from the ancestor.
+	 */
 	private function is_descendant_term( $term_id, $ancestor_id ) {
 		$term_id     = absint( $term_id );
 		$ancestor_id = absint( $ancestor_id );
