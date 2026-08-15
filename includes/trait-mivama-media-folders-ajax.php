@@ -1,10 +1,22 @@
 <?php
+/**
+ * AJAX handlers for media folder operations.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Handles folder creation and attachment assignment requests.
+ */
 trait Mivama_Media_Folders_Ajax {
 
+	/**
+	 * Create or reuse a media folder via AJAX.
+	 */
 	public function ajax_create_media_folder() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 
@@ -35,6 +47,9 @@ trait Mivama_Media_Folders_Ajax {
 		);
 	}
 
+	/**
+	 * Assign or remove a media folder from an attachment via AJAX.
+	 */
 	public function ajax_set_attachment_folder() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 
