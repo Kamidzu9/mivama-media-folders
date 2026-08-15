@@ -1,12 +1,26 @@
 <?php
+/**
+ * Permission integration tests.
+ *
+ * @package Mivama_Media_Folders
+ */
 
+/**
+ * Verifies Media Folders UI respects WordPress user capabilities.
+ */
 class Mivama_Media_Folders_Permissions_Test extends WP_UnitTestCase {
 
+	/**
+	 * Register the plugin taxonomy before each test.
+	 */
 	public function set_up() {
 		parent::set_up();
 		Mivama_Media_Folders::instance()->register_taxonomy();
 	}
 
+	/**
+	 * Subscribers must not receive the attachment folder field.
+	 */
 	public function test_subscriber_cannot_receive_attachment_folder_field() {
 		$subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		wp_set_current_user( $subscriber );
@@ -22,6 +36,9 @@ class Mivama_Media_Folders_Permissions_Test extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( Mivama_Media_Folders::FIELD_KEY, $fields );
 	}
 
+	/**
+	 * Administrators must receive the attachment folder field.
+	 */
 	public function test_administrator_can_receive_attachment_folder_field() {
 		$administrator = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $administrator );
