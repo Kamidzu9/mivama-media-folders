@@ -1,10 +1,26 @@
 <?php
+/**
+ * Attachment edit field integration.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Adds and saves folder controls on attachment details.
+ */
 trait Mivama_Media_Folders_Attachment_Fields {
 
+	/**
+	 * Add the media folder selector to attachment fields.
+	 *
+	 * @param array   $form_fields Existing attachment fields.
+	 * @param WP_Post $post        Attachment post object.
+	 * @return array Updated attachment fields.
+	 */
 	public function add_attachment_folder_field( $form_fields, $post ) {
 		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 			return $form_fields;
@@ -30,6 +46,13 @@ trait Mivama_Media_Folders_Attachment_Fields {
 		return $form_fields;
 	}
 
+	/**
+	 * Persist the selected folder when attachment fields are saved.
+	 *
+	 * @param array $post       Attachment post data.
+	 * @param array $attachment Submitted attachment fields.
+	 * @return array Unmodified attachment post data.
+	 */
 	public function save_attachment_folder_field( $post, $attachment ) {
 		if ( ! isset( $post['ID'], $attachment[ self::FIELD_KEY ] ) ) {
 			return $post;
