@@ -1,12 +1,26 @@
 <?php
+/**
+ * Media folder taxonomy integration tests.
+ *
+ * @package Mivama_Media_Folders
+ */
 
+/**
+ * Verifies taxonomy registration and hierarchical folder behavior.
+ */
 class Mivama_Media_Folders_Taxonomy_Test extends WP_UnitTestCase {
 
+	/**
+	 * Register the plugin taxonomy before each test.
+	 */
 	public function set_up() {
 		parent::set_up();
 		Mivama_Media_Folders::instance()->register_taxonomy();
 	}
 
+	/**
+	 * The taxonomy must be private, hierarchical, REST-enabled, and attachment-only.
+	 */
 	public function test_taxonomy_is_registered_for_attachments() {
 		$taxonomy = get_taxonomy( Mivama_Media_Folders::TAXONOMY );
 
@@ -18,6 +32,9 @@ class Mivama_Media_Folders_Taxonomy_Test extends WP_UnitTestCase {
 		$this->assertFalse( $taxonomy->rewrite );
 	}
 
+	/**
+	 * Nested folder terms must retain their parent-child relationship.
+	 */
 	public function test_nested_folder_terms_can_be_created() {
 		$parent = wp_insert_term( 'Marketing', Mivama_Media_Folders::TAXONOMY );
 		$this->assertNotWPError( $parent );
