@@ -29,6 +29,10 @@ define( 'DB_COLLATE', '' );
 \$table_prefix = 'wptests_';
 define( 'ABSPATH', '${WP_CORE_DIR}/' );
 define( 'WP_DEBUG', true );
+define( 'WP_TESTS_DOMAIN', 'example.org' );
+define( 'WP_TESTS_EMAIL', 'admin@example.org' );
+define( 'WP_TESTS_TITLE', 'mivama Media Folders Tests' );
+define( 'WP_PHP_BINARY', PHP_BINARY );
 PHP
 
 mysqladmin --host="${DB_HOST}" --user="${DB_USER}" ${DB_PASS:+--password="${DB_PASS}"} create "${DB_NAME}" 2>/dev/null || true
