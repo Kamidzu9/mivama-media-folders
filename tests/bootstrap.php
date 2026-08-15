@@ -24,22 +24,6 @@ if ( ! defined( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH' ) ) {
 	}
 }
 
-if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
-	define( 'WP_TESTS_DOMAIN', 'example.org' );
-}
-
-if ( ! defined( 'WP_TESTS_EMAIL' ) ) {
-	define( 'WP_TESTS_EMAIL', 'admin@example.org' );
-}
-
-if ( ! defined( 'WP_TESTS_TITLE' ) ) {
-	define( 'WP_TESTS_TITLE', 'mivama Media Folders Tests' );
-}
-
-if ( ! defined( 'WP_PHP_BINARY' ) ) {
-	define( 'WP_PHP_BINARY', PHP_BINARY );
-}
-
 require_once $_tests_dir . '/includes/functions.php';
 
 tests_add_filter(
