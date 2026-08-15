@@ -48,12 +48,15 @@ class Mivama_Media_Folders_Ajax_Security_Test extends WP_Ajax_UnitTestCase {
 	 * @return array Decoded JSON response.
 	 */
 	private function run_json_ajax( $action ) {
+		$terminated = false;
+
 		try {
 			$this->_handleAjax( $action );
 		} catch ( WPAjaxDieContinueException $exception ) {
-			// Expected: wp_send_json_* terminates after writing the JSON body.
+			$terminated = true;
 		}
 
+		$this->assertTrue( $terminated, 'The AJAX handler should terminate after writing its JSON response.' );
 		$response = json_decode( $this->_last_response, true );
 		$this->assertIsArray( $response );
 		return $response;
