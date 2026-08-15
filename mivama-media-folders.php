@@ -8,6 +8,8 @@
  * Author URI:  https://mivama.de/
  * Text Domain: mivama-media-folders
  * License:     GPL-2.0-or-later
+ *
+ * @package Mivama_Media_Folders
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
