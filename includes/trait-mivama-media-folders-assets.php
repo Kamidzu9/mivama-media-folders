@@ -1,10 +1,24 @@
 <?php
+/**
+ * Admin asset loading.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Loads the Media Folders admin assets.
+ */
 trait Mivama_Media_Folders_Assets {
 
+	/**
+	 * Enqueue styles and Media Library integration scripts.
+	 *
+	 * @param string $hook Current admin page hook suffix.
+	 */
 	public function enqueue_admin_assets( $hook = '' ) {
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return;
