@@ -35,7 +35,9 @@ Mivama_Media_Folders::instance();
 register_activation_hook(
 	__FILE__,
 	function () {
-		Mivama_Media_Folders::instance()->register_taxonomy();
+		$plugin = Mivama_Media_Folders::instance();
+		$plugin->install_capabilities();
+		$plugin->register_taxonomy();
 		flush_rewrite_rules( false );
 	}
 );
