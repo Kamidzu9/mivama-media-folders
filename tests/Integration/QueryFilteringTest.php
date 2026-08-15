@@ -1,13 +1,27 @@
 <?php
+/**
+ * Media query filtering integration tests.
+ *
+ * @package Mivama_Media_Folders
+ */
 
+/**
+ * Verifies folder filters are translated into attachment taxonomy queries.
+ */
 class Mivama_Media_Folders_Query_Filtering_Test extends WP_UnitTestCase {
 
+	/**
+	 * Register the taxonomy and use an administrator before each test.
+	 */
 	public function set_up() {
 		parent::set_up();
 		Mivama_Media_Folders::instance()->register_taxonomy();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 	}
 
+	/**
+	 * Folder queries must include descendants of the selected folder.
+	 */
 	public function test_grid_query_filters_by_folder_and_includes_children() {
 		$parent = wp_insert_term( 'Marketing', Mivama_Media_Folders::TAXONOMY );
 		$child  = wp_insert_term(
@@ -32,6 +46,9 @@ class Mivama_Media_Folders_Query_Filtering_Test extends WP_UnitTestCase {
 		$this->assertNotWPError( $child );
 	}
 
+	/**
+	 * The unassigned filter must use a taxonomy NOT EXISTS clause.
+	 */
 	public function test_grid_query_can_filter_unassigned_media() {
 		$query = Mivama_Media_Folders::instance()->filter_media_grid_query(
 			array(
