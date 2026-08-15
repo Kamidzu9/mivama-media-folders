@@ -1,10 +1,22 @@
 <?php
+/**
+ * Media folder taxonomy registration.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Registers the hierarchical attachment taxonomy used for folders.
+ */
 trait Mivama_Media_Folders_Taxonomy {
 
+	/**
+	 * Register the media folder taxonomy for attachments.
+	 */
 	public function register_taxonomy() {
 		$labels = array(
 			'name'              => __( 'Media Folders', 'mivama-media-folders' ),
