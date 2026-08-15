@@ -1,8 +1,17 @@
 <?php
+/**
+ * Main plugin controller.
+ *
+ * @package Mivama_Media_Folders
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Coordinates Media Folders hooks and shared configuration.
+ */
 final class Mivama_Media_Folders {
 
 	use Mivama_Media_Folders_Taxonomy;
@@ -20,9 +29,18 @@ final class Mivama_Media_Folders {
 	const NONCE_ACTION     = 'mivama_media_folders_nonce';
 	const FILTER_QUERY_ARG = 'mivama_media_folder_filter';
 
-	/** @var self|null */
+	/**
+	 * Singleton instance.
+	 *
+	 * @var self|null
+	 */
 	private static $instance = null;
 
+	/**
+	 * Get the singleton instance.
+	 *
+	 * @return self Plugin instance.
+	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -31,6 +49,9 @@ final class Mivama_Media_Folders {
 		return self::$instance;
 	}
 
+	/**
+	 * Register WordPress hooks.
+	 */
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_taxonomy' ) );
 		add_action( 'admin_menu', array( $this, 'register_admin_menu' ) );
