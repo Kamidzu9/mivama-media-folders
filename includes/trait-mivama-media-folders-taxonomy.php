@@ -46,9 +46,9 @@ trait Mivama_Media_Folders_Taxonomy {
 				'query_var'             => true,
 				'rewrite'               => false,
 				'capabilities'          => array(
-					'manage_terms' => 'upload_files',
-					'edit_terms'   => 'upload_files',
-					'delete_terms' => 'upload_files',
+					'manage_terms' => 'manage_categories',
+					'edit_terms'   => 'manage_categories',
+					'delete_terms' => 'manage_categories',
 					'assign_terms' => 'upload_files',
 				),
 				'update_count_callback' => '_update_generic_term_count',
