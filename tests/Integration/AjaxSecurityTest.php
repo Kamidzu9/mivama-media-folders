@@ -78,6 +78,22 @@ class Mivama_Media_Folders_Ajax_Security_Test extends WP_Ajax_UnitTestCase {
 	}
 
 	/**
+	 * An invalid nonce must stop folder creation before mutation.
+	 */
+	public function test_create_folder_rejects_invalid_nonce() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$_POST = array(
+			'nonce'  => 'invalid-nonce',
+			'name'   => 'Secure',
+			'parent' => 0,
+		);
+
+		$this->expectException( WPAjaxDieStopException::class );
+		$this->expectExceptionMessage( '-1' );
+		$this->_handleAjax( 'mivama_create_media_folder' );
+	}
+
+	/**
 	 * Authors may upload media but must not mutate the global folder structure.
 	 */
 	public function test_author_cannot_create_folder() {
@@ -125,6 +141,7 @@ class Mivama_Media_Folders_Ajax_Security_Test extends WP_Ajax_UnitTestCase {
 		);
 
 		wp_set_current_user( $author_id );
+		$this->assertTrue( current_user_can( 'upload_files' ) );
 		$this->assertFalse( current_user_can( Mivama_Media_Folders::MANAGE_CAPABILITY ) );
 		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ) );
 
@@ -158,6 +175,25 @@ class Mivama_Media_Folders_Ajax_Security_Test extends WP_Ajax_UnitTestCase {
 		$_POST = array(
 			'nonce'        => wp_create_nonce( Mivama_Media_Folders::NONCE_ACTION ),
 			'attachmentId' => $attachment_id,
+			'folderId'     => $folder['term_id'],
+		);
+
+		$response = $this->run_json_ajax( 'mivama_set_attachment_folder' );
+		$this->assertFalse( $response['success'] );
+	}
+
+	/**
+	 * Invalid attachment identifiers must fail before folder assignment.
+	 */
+	public function test_invalid_attachment_assignment_returns_error() {
+		$administrator = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		$folder        = wp_insert_term( 'Existing', Mivama_Media_Folders::TAXONOMY );
+		$this->assertNotWPError( $folder );
+		wp_set_current_user( $administrator );
+
+		$_POST = array(
+			'nonce'        => wp_create_nonce( Mivama_Media_Folders::NONCE_ACTION ),
+			'attachmentId' => 999999,
 			'folderId'     => $folder['term_id'],
 		);
 
