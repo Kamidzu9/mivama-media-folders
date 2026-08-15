@@ -10,13 +10,13 @@
  * License:     GPL-2.0-or-later
  */
 
-if (! defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-define('MIVAMA_MEDIA_FOLDERS_FILE', __FILE__);
-define('MIVAMA_MEDIA_FOLDERS_DIR', plugin_dir_path(__FILE__));
-define('MIVAMA_MEDIA_FOLDERS_URL', plugin_dir_url(__FILE__));
+define( 'MIVAMA_MEDIA_FOLDERS_FILE', __FILE__ );
+define( 'MIVAMA_MEDIA_FOLDERS_DIR', plugin_dir_path( __FILE__ ) );
+define( 'MIVAMA_MEDIA_FOLDERS_URL', plugin_dir_url( __FILE__ ) );
 
 require_once MIVAMA_MEDIA_FOLDERS_DIR . 'includes/trait-mivama-media-folders-taxonomy.php';
 require_once MIVAMA_MEDIA_FOLDERS_DIR . 'includes/trait-mivama-media-folders-assets.php';
@@ -30,11 +30,17 @@ require_once MIVAMA_MEDIA_FOLDERS_DIR . 'includes/class-mivama-media-folders.php
 
 Mivama_Media_Folders::instance();
 
-register_activation_hook(__FILE__, function () {
-    Mivama_Media_Folders::instance()->register_taxonomy();
-    flush_rewrite_rules(false);
-});
+register_activation_hook(
+	__FILE__,
+	function () {
+		Mivama_Media_Folders::instance()->register_taxonomy();
+		flush_rewrite_rules( false );
+	}
+);
 
-register_deactivation_hook(__FILE__, function () {
-    flush_rewrite_rules(false);
-});
+register_deactivation_hook(
+	__FILE__,
+	function () {
+		flush_rewrite_rules( false );
+	}
+);
