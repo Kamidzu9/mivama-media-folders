@@ -1,9 +1,25 @@
 <?php
+/**
+ * Attachment folder assignment integration tests.
+ *
+ * @package Mivama_Media_Folders
+ */
 
+/**
+ * Verifies attachment folder assignments can be saved and removed.
+ */
 class Mivama_Media_Folders_Attachment_Assignment_Test extends WP_UnitTestCase {
 
+	/**
+	 * Administrator user ID used by assignment tests.
+	 *
+	 * @var int
+	 */
 	private $user_id;
 
+	/**
+	 * Register the taxonomy and authenticate an administrator before each test.
+	 */
 	public function set_up() {
 		parent::set_up();
 		Mivama_Media_Folders::instance()->register_taxonomy();
@@ -11,6 +27,9 @@ class Mivama_Media_Folders_Attachment_Assignment_Test extends WP_UnitTestCase {
 		wp_set_current_user( $this->user_id );
 	}
 
+	/**
+	 * Attachment fields must assign and later clear the selected folder.
+	 */
 	public function test_attachment_can_be_assigned_and_removed_from_folder() {
 		$attachment_id = self::factory()->post->create(
 			array(
