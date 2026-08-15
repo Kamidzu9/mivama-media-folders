@@ -21,7 +21,7 @@ trait Mivama_Media_Folders_Admin_Page {
 		add_media_page(
 			__( 'Media Folders', 'mivama-media-folders' ),
 			__( 'Folders', 'mivama-media-folders' ),
-			'manage_categories',
+			self::MANAGE_CAPABILITY,
 			'mivama-media-folders',
 			array( $this, 'render_folders_page' )
 		);
@@ -31,7 +31,7 @@ trait Mivama_Media_Folders_Admin_Page {
 	 * Render the folder management page.
 	 */
 	public function render_folders_page() {
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		if ( ! current_user_can( self::MANAGE_CAPABILITY ) ) {
 			wp_die( esc_html__( 'You do not have permission to manage media folders.', 'mivama-media-folders' ) );
 		}
 
@@ -294,7 +294,7 @@ trait Mivama_Media_Folders_Admin_Page {
 	 * Require the capability used for structural folder management.
 	 */
 	private function require_folder_management() {
-		if ( ! current_user_can( 'manage_categories' ) ) {
+		if ( ! current_user_can( self::MANAGE_CAPABILITY ) ) {
 			wp_die( esc_html__( 'You do not have permission to manage media folders.', 'mivama-media-folders' ) );
 		}
 	}
