@@ -90,7 +90,7 @@ class Mivama_Media_Folders_Ajax_Security_Test extends WP_Ajax_UnitTestCase {
 
 		$response = $this->run_json_ajax( 'mivama_create_media_folder' );
 		$this->assertFalse( $response['success'] );
-		$this->assertFalse( term_exists( 'Forbidden', Mivama_Media_Folders::TAXONOMY ) );
+		$this->assertNull( term_exists( 'Forbidden', Mivama_Media_Folders::TAXONOMY ) );
 	}
 
 	/**
