@@ -20,7 +20,7 @@ trait Mivama_Media_Folders_Ajax {
 	public function ajax_create_media_folder() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 
-		if ( ! current_user_can( 'upload_files' ) ) {
+		if ( ! current_user_can( 'manage_categories' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to create media folders.', 'mivama-media-folders' ) ), 403 );
 		}
 
