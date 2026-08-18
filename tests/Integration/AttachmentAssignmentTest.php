@@ -1,40 +1,62 @@
 <?php
+/**
+ * Attachment folder assignment integration tests.
+ *
+ * @package Mivama_Media_Folders
+ */
 
-class Mivama_Media_Folders_Attachment_Assignment_Test extends WP_UnitTestCase
-{
-    private $user_id;
+/**
+ * Verifies attachment folder assignments can be saved and removed.
+ */
+class Mivama_Media_Folders_Attachment_Assignment_Test extends WP_UnitTestCase {
 
-    public function set_up()
-    {
-        parent::set_up();
-        Mivama_Media_Folders::instance()->register_taxonomy();
-        $this->user_id = self::factory()->user->create(array('role' => 'administrator'));
-        wp_set_current_user($this->user_id);
-    }
+	/**
+	 * Administrator user ID used by assignment tests.
+	 *
+	 * @var int
+	 */
+	private $user_id;
 
-    public function test_attachment_can_be_assigned_and_removed_from_folder()
-    {
-        $attachment_id = self::factory()->post->create(array('post_type' => 'attachment', 'post_status' => 'inherit'));
-        $folder = wp_insert_term('Products', Mivama_Media_Folders::TAXONOMY);
-        $this->assertNotWPError($folder);
+	/**
+	 * Register the taxonomy and authenticate an administrator before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Mivama_Media_Folders::instance()->register_taxonomy();
+		$this->user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $this->user_id );
+	}
 
-        apply_filters(
-            'attachment_fields_to_save',
-            array('ID' => $attachment_id),
-            array(Mivama_Media_Folders::FIELD_KEY => (string) $folder['term_id'])
-        );
+	/**
+	 * Attachment fields must assign and later clear the selected folder.
+	 */
+	public function test_attachment_can_be_assigned_and_removed_from_folder() {
+		$attachment_id = self::factory()->post->create(
+			array(
+				'post_type'   => 'attachment',
+				'post_status' => 'inherit',
+			)
+		);
+		$folder        = wp_insert_term( 'Products', Mivama_Media_Folders::TAXONOMY );
+		$this->assertNotWPError( $folder );
 
-        $terms = wp_get_object_terms($attachment_id, Mivama_Media_Folders::TAXONOMY, array('fields' => 'ids'));
-        $this->assertSame(array((int) $folder['term_id']), array_map('intval', $terms));
-        $this->assertFalse(get_term_by('name', (string) $folder['term_id'], Mivama_Media_Folders::TAXONOMY));
+		apply_filters(
+			'attachment_fields_to_save',
+			array( 'ID' => $attachment_id ),
+			array( Mivama_Media_Folders::FIELD_KEY => (string) $folder['term_id'] )
+		);
 
-        apply_filters(
-            'attachment_fields_to_save',
-            array('ID' => $attachment_id),
-            array(Mivama_Media_Folders::FIELD_KEY => '0')
-        );
+		$terms = wp_get_object_terms( $attachment_id, Mivama_Media_Folders::TAXONOMY, array( 'fields' => 'ids' ) );
+		$this->assertSame( array( (int) $folder['term_id'] ), array_map( 'intval', $terms ) );
+		$this->assertFalse( get_term_by( 'name', (string) $folder['term_id'], Mivama_Media_Folders::TAXONOMY ) );
 
-        $terms = wp_get_object_terms($attachment_id, Mivama_Media_Folders::TAXONOMY, array('fields' => 'ids'));
-        $this->assertSame(array(), $terms);
-    }
+		apply_filters(
+			'attachment_fields_to_save',
+			array( 'ID' => $attachment_id ),
+			array( Mivama_Media_Folders::FIELD_KEY => '0' )
+		);
+
+		$terms = wp_get_object_terms( $attachment_id, Mivama_Media_Folders::TAXONOMY, array( 'fields' => 'ids' ) );
+		$this->assertSame( array(), $terms );
+	}
 }

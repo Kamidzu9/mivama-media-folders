@@ -37,8 +37,8 @@ jobs:
           tools: composer:v2
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
-      - name: Validate Composer metadata
-        run: composer validate --strict --no-check-lock
+      - name: Validate Composer metadata and lockfile
+        run: composer validate --strict
       - name: WordPress coding standards
         run: composer phpcs
       - name: PHP 7.4+ compatibility
@@ -47,3 +47,25 @@ jobs:
         run: composer version
       - name: JavaScript syntax
         run: node --check assets/admin.js
+
+  release-package:
+    name: Release package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Build release ZIP
+        run: bash bin/build-release.sh
+      - name: Validate ZIP structure
+        run: |
+          unzip -Z1 dist/mivama-media-folders.zip > /tmp/release-files.txt
+          grep -Fxq 'mivama-media-folders/mivama-media-folders.php' /tmp/release-files.txt
+          grep -Fxq 'mivama-media-folders/includes/class-mivama-media-folders.php' /tmp/release-files.txt
+          grep -Fxq 'mivama-media-folders/readme.txt' /tmp/release-files.txt
+          if grep -Eq '^mivama-media-folders/(tests|vendor|bin|\.github|composer\.json|composer\.lock)(/|$)' /tmp/release-files.txt; then
+            echo 'Release ZIP contains development files.' >&2
+            exit 1
+          fi

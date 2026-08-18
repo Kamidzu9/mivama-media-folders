@@ -1,248 +1,301 @@
 <?php
-if (! defined('ABSPATH')) {
-    exit;
+/**
+ * Media Folders administration page.
+ *
+ * @package Mivama_Media_Folders
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-trait Mivama_Media_Folders_Admin_Page
-{
-    public function register_admin_menu()
-    {
-        add_media_page(
-            __('Media Folders', 'mivama-media-folders'),
-            __('Folders', 'mivama-media-folders'),
-            'upload_files',
-            'mivama-media-folders',
-            array($this, 'render_folders_page')
-        );
-    }
+/**
+ * Renders and processes the folder management screen.
+ */
+trait Mivama_Media_Folders_Admin_Page {
 
-    public function render_folders_page()
-    {
-        if (! current_user_can('upload_files')) {
-            wp_die(esc_html__('You do not have permission to manage media folders.', 'mivama-media-folders'));
-        }
+	/**
+	 * Register the Media > Folders administration page.
+	 */
+	public function register_admin_menu() {
+		add_media_page(
+			__( 'Media Folders', 'mivama-media-folders' ),
+			__( 'Folders', 'mivama-media-folders' ),
+			self::MANAGE_CAPABILITY,
+			'mivama-media-folders',
+			array( $this, 'render_folders_page' )
+		);
+	}
 
-        $edit_id   = isset($_GET['edit_folder']) ? absint(wp_unslash($_GET['edit_folder'])) : 0;
-        $edit_term = $edit_id ? get_term($edit_id, self::TAXONOMY) : null;
-        if ($edit_term && is_wp_error($edit_term)) {
-            $edit_term = null;
-        }
+	/**
+	 * Render the folder management page.
+	 */
+	public function render_folders_page() {
+		if ( ! current_user_can( self::MANAGE_CAPABILITY ) ) {
+			wp_die( esc_html__( 'You do not have permission to manage media folders.', 'mivama-media-folders' ) );
+		}
 
-        echo '<div class="wrap mivama-media-folders-page">';
-        echo '<h1 class="wp-heading-inline">' . esc_html__('Media Folders', 'mivama-media-folders') . '</h1>';
-        echo '<a href="' . esc_url(admin_url('upload.php')) . '" class="page-title-action">' . esc_html__('Media Library', 'mivama-media-folders') . '</a>';
-        echo '<hr class="wp-header-end">';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation state for selecting a folder to edit.
+		$edit_id   = isset( $_GET['edit_folder'] ) ? absint( wp_unslash( $_GET['edit_folder'] ) ) : 0;
+		$edit_term = $edit_id ? get_term( $edit_id, self::TAXONOMY ) : null;
+		if ( $edit_term && is_wp_error( $edit_term ) ) {
+			$edit_term = null;
+		}
 
-        $this->render_folder_page_notice();
+		echo '<div class="wrap mivama-media-folders-page">';
+		echo '<h1 class="wp-heading-inline">' . esc_html__( 'Media Folders', 'mivama-media-folders' ) . '</h1>';
+		echo '<a href="' . esc_url( admin_url( 'upload.php' ) ) . '" class="page-title-action">' . esc_html__( 'Media Library', 'mivama-media-folders' ) . '</a>';
+		echo '<hr class="wp-header-end">';
 
-        echo '<p>' . esc_html__('Create folders for the native WordPress Media Library. Files are not physically moved, so existing URLs stay unchanged.', 'mivama-media-folders') . '</p>';
-        echo '<div id="col-container" class="wp-clearfix">';
-        echo '<div id="col-left"><div class="col-wrap">';
-        echo '<h2>' . esc_html($edit_term ? __('Edit Folder', 'mivama-media-folders') : __('Add New Folder', 'mivama-media-folders')) . '</h2>';
+		$this->render_folder_page_notice();
 
-        if ($edit_term) {
-            $this->render_update_folder_form($edit_term);
-        } else {
-            $this->render_create_folder_form();
-        }
+		echo '<p>' . esc_html__( 'Create folders for the native WordPress Media Library. Files are not physically moved, so existing URLs stay unchanged.', 'mivama-media-folders' ) . '</p>';
+		echo '<div id="col-container" class="wp-clearfix">';
+		echo '<div id="col-left"><div class="col-wrap">';
+		echo '<h2>' . ( $edit_term ? esc_html__( 'Edit Folder', 'mivama-media-folders' ) : esc_html__( 'Add New Folder', 'mivama-media-folders' ) ) . '</h2>';
 
-        echo '</div></div>';
-        echo '<div id="col-right"><div class="col-wrap">';
-        $this->render_folders_table();
-        echo '</div></div>';
-        echo '</div>';
-        echo '</div>';
-    }
+		if ( $edit_term ) {
+			$this->render_update_folder_form( $edit_term );
+		} else {
+			$this->render_create_folder_form();
+		}
 
-    private function render_folder_page_notice()
-    {
-        if (empty($_GET['mivama_mf_message'])) {
-            return;
-        }
+		echo '</div></div>';
+		echo '<div id="col-right"><div class="col-wrap">';
+		$this->render_folders_table();
+		echo '</div></div>';
+		echo '</div>';
+		echo '</div>';
+	}
 
-        $message = sanitize_key(wp_unslash($_GET['mivama_mf_message']));
-        $map = array(
-            'created' => array('success', __('Folder created.', 'mivama-media-folders')),
-            'updated' => array('success', __('Folder updated.', 'mivama-media-folders')),
-            'deleted' => array('success', __('Folder deleted. Media files stayed in the library.', 'mivama-media-folders')),
-            'exists'  => array('info', __('A folder with this name already exists in that parent folder. Existing folder was reused.', 'mivama-media-folders')),
-            'error'   => array('error', __('Something went wrong. Please check the folder name and parent folder.', 'mivama-media-folders')),
-        );
+	/**
+	 * Render a status notice after a folder operation.
+	 */
+	private function render_folder_page_notice() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect status generated by trusted handlers.
+		if ( empty( $_GET['mivama_mf_message'] ) ) {
+			return;
+		}
 
-        if (! isset($map[$message])) {
-            return;
-        }
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect status generated by trusted handlers.
+		$message = sanitize_key( wp_unslash( $_GET['mivama_mf_message'] ) );
+		$map     = array(
+			'created' => array( 'success', __( 'Folder created.', 'mivama-media-folders' ) ),
+			'updated' => array( 'success', __( 'Folder updated.', 'mivama-media-folders' ) ),
+			'deleted' => array( 'success', __( 'Folder deleted. Media files stayed in the library.', 'mivama-media-folders' ) ),
+			'exists'  => array( 'info', __( 'A folder with this name already exists in that parent folder. Existing folder was reused.', 'mivama-media-folders' ) ),
+			'error'   => array( 'error', __( 'Something went wrong. Please check the folder name and parent folder.', 'mivama-media-folders' ) ),
+		);
 
-        printf(
-            '<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
-            esc_attr($map[$message][0]),
-            esc_html($map[$message][1])
-        );
-    }
+		if ( ! isset( $map[ $message ] ) ) {
+			return;
+		}
 
-    private function render_create_folder_form()
-    {
-        echo '<div class="form-wrap">';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
-        echo '<input type="hidden" name="action" value="mivama_mf_create_folder">';
-        wp_nonce_field('mivama_mf_create_folder');
-        echo '<div class="form-field form-required term-name-wrap">';
-        echo '<label for="mivama-mf-folder-name">' . esc_html__('Name', 'mivama-media-folders') . '</label>';
-        echo '<input id="mivama-mf-folder-name" type="text" name="folder_name" value="" required aria-required="true">';
-        echo '<p>' . esc_html__('The name is how the folder appears in the Media Library.', 'mivama-media-folders') . '</p>';
-        echo '</div>';
-        echo '<div class="form-field term-parent-wrap">';
-        echo '<label for="mivama-mf-folder-parent">' . esc_html__('Parent folder', 'mivama-media-folders') . '</label>';
-        echo '<select id="mivama-mf-folder-parent" name="folder_parent">' . $this->render_folder_select_options(0, __('None', 'mivama-media-folders')) . '</select>';
-        echo '<p>' . esc_html__('Assign a parent to create a nested folder.', 'mivama-media-folders') . '</p>';
-        echo '</div>';
-        submit_button(__('Add New Folder', 'mivama-media-folders'));
-        echo '</form>';
-        echo '</div>';
-    }
+		printf(
+			'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
+			esc_attr( $map[ $message ][0] ),
+			esc_html( $map[ $message ][1] )
+		);
+	}
 
-    private function render_update_folder_form($term)
-    {
-        echo '<div class="form-wrap">';
-        echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
-        echo '<input type="hidden" name="action" value="mivama_mf_update_folder">';
-        echo '<input type="hidden" name="folder_id" value="' . absint($term->term_id) . '">';
-        wp_nonce_field('mivama_mf_update_folder_' . absint($term->term_id));
-        echo '<div class="form-field form-required term-name-wrap">';
-        echo '<label for="mivama-mf-folder-name">' . esc_html__('Name', 'mivama-media-folders') . '</label>';
-        echo '<input id="mivama-mf-folder-name" type="text" name="folder_name" value="' . esc_attr($term->name) . '" required aria-required="true">';
-        echo '</div>';
-        echo '<div class="form-field term-parent-wrap">';
-        echo '<label for="mivama-mf-folder-parent">' . esc_html__('Parent folder', 'mivama-media-folders') . '</label>';
-        echo '<select id="mivama-mf-folder-parent" name="folder_parent">' . $this->render_folder_select_options((int) $term->parent, __('None', 'mivama-media-folders'), absint($term->term_id)) . '</select>';
-        echo '</div>';
-        submit_button(__('Update Folder', 'mivama-media-folders'));
-        echo '<p><a href="' . esc_url(admin_url('upload.php?page=mivama-media-folders')) . '">' . esc_html__('Cancel editing', 'mivama-media-folders') . '</a></p>';
-        echo '</form>';
-        echo '</div>';
-    }
+	/**
+	 * Render the create-folder form.
+	 */
+	private function render_create_folder_form() {
+		$allowed_options = array(
+			'option' => array(
+				'value'    => true,
+				'selected' => true,
+			),
+		);
 
-    private function render_folders_table()
-    {
-        $folders = $this->get_folder_tree();
+		echo '<div class="form-wrap">';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo '<input type="hidden" name="action" value="mivama_mf_create_folder">';
+		wp_nonce_field( 'mivama_mf_create_folder' );
+		echo '<div class="form-field form-required term-name-wrap">';
+		echo '<label for="mivama-mf-folder-name">' . esc_html__( 'Name', 'mivama-media-folders' ) . '</label>';
+		echo '<input id="mivama-mf-folder-name" type="text" name="folder_name" value="" required aria-required="true">';
+		echo '<p>' . esc_html__( 'The name is how the folder appears in the Media Library.', 'mivama-media-folders' ) . '</p>';
+		echo '</div>';
+		echo '<div class="form-field term-parent-wrap">';
+		echo '<label for="mivama-mf-folder-parent">' . esc_html__( 'Parent folder', 'mivama-media-folders' ) . '</label>';
+		echo '<select id="mivama-mf-folder-parent" name="folder_parent">' . wp_kses( $this->render_folder_select_options( 0, __( 'None', 'mivama-media-folders' ) ), $allowed_options ) . '</select>';
+		echo '<p>' . esc_html__( 'Assign a parent to create a nested folder.', 'mivama-media-folders' ) . '</p>';
+		echo '</div>';
+		submit_button( __( 'Add New Folder', 'mivama-media-folders' ) );
+		echo '</form>';
+		echo '</div>';
+	}
 
-        if (empty($folders)) {
-            echo '<p>' . esc_html__('No folders yet. Create the first folder on the left.', 'mivama-media-folders') . '</p>';
-            return;
-        }
+	/**
+	 * Render the update-folder form.
+	 *
+	 * @param WP_Term $term Folder term being edited.
+	 */
+	private function render_update_folder_form( $term ) {
+		$allowed_options = array(
+			'option' => array(
+				'value'    => true,
+				'selected' => true,
+			),
+		);
 
-        echo '<table class="wp-list-table widefat fixed striped table-view-list">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__('Folder', 'mivama-media-folders') . '</th>';
-        echo '<th>' . esc_html__('Parent', 'mivama-media-folders') . '</th>';
-        echo '<th>' . esc_html__('Files', 'mivama-media-folders') . '</th>';
-        echo '<th>' . esc_html__('Actions', 'mivama-media-folders') . '</th>';
-        echo '</tr></thead><tbody>';
+		echo '<div class="form-wrap">';
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		echo '<input type="hidden" name="action" value="mivama_mf_update_folder">';
+		echo '<input type="hidden" name="folder_id" value="' . absint( $term->term_id ) . '">';
+		wp_nonce_field( 'mivama_mf_update_folder' );
+		echo '<div class="form-field form-required term-name-wrap">';
+		echo '<label for="mivama-mf-folder-name">' . esc_html__( 'Name', 'mivama-media-folders' ) . '</label>';
+		echo '<input id="mivama-mf-folder-name" type="text" name="folder_name" value="' . esc_attr( $term->name ) . '" required aria-required="true">';
+		echo '</div>';
+		echo '<div class="form-field term-parent-wrap">';
+		echo '<label for="mivama-mf-folder-parent">' . esc_html__( 'Parent folder', 'mivama-media-folders' ) . '</label>';
+		echo '<select id="mivama-mf-folder-parent" name="folder_parent">' . wp_kses( $this->render_folder_select_options( (int) $term->parent, __( 'None', 'mivama-media-folders' ), absint( $term->term_id ) ), $allowed_options ) . '</select>';
+		echo '</div>';
+		submit_button( __( 'Update Folder', 'mivama-media-folders' ) );
+		echo '<p><a href="' . esc_url( admin_url( 'upload.php?page=mivama-media-folders' ) ) . '">' . esc_html__( 'Cancel editing', 'mivama-media-folders' ) . '</a></p>';
+		echo '</form>';
+		echo '</div>';
+	}
 
-        foreach ($folders as $folder) {
-            $edit_url = add_query_arg(
-                array('page' => 'mivama-media-folders', 'edit_folder' => absint($folder['id'])),
-                admin_url('upload.php')
-            );
-            $view_url = add_query_arg(
-                array(
-                    'mode'      => 'list',
-                    'post_type' => 'attachment',
-                    self::FILTER_QUERY_ARG => absint($folder['id']),
-                ),
-                admin_url('upload.php')
-            );
-            $delete_url = wp_nonce_url(
-                add_query_arg(
-                    array('action' => 'mivama_mf_delete_folder', 'folder_id' => absint($folder['id'])),
-                    admin_url('admin-post.php')
-                ),
-                'mivama_mf_delete_folder_' . absint($folder['id'])
-            );
+	/**
+	 * Render the current folder tree table.
+	 */
+	private function render_folders_table() {
+		$folders = $this->get_folder_tree();
 
-            echo '<tr>';
-            echo '<td><strong>' . esc_html(str_repeat('-- ', absint($folder['depth'])) . $folder['name']) . '</strong><br><code>' . esc_html($folder['slug']) . '</code></td>';
-            echo '<td>' . ($folder['parent_name'] ? esc_html($folder['parent_name']) : '<span class="mivama-folder-empty">' . esc_html__('No parent', 'mivama-media-folders') . '</span>') . '</td>';
-            echo '<td><a href="' . esc_url($view_url) . '">' . esc_html(number_format_i18n((int) $folder['count'])) . '</a></td>';
-            echo '<td>';
-            echo '<a class="button button-small" href="' . esc_url($edit_url) . '">' . esc_html__('Edit', 'mivama-media-folders') . '</a> ';
-            echo '<a class="button button-small" href="' . esc_url($view_url) . '">' . esc_html__('View files', 'mivama-media-folders') . '</a> ';
-            echo '<a class="button button-small button-link-delete" href="' . esc_url($delete_url) . '" onclick="return confirm(\'' . esc_js(__('Delete this folder? Media files will not be deleted.', 'mivama-media-folders')) . '\');">' . esc_html__('Delete', 'mivama-media-folders') . '</a>';
-            echo '</td>';
-            echo '</tr>';
-        }
+		if ( empty( $folders ) ) {
+			echo '<p>' . esc_html__( 'No folders yet. Create the first folder on the left.', 'mivama-media-folders' ) . '</p>';
+			return;
+		}
 
-        echo '</tbody></table>';
-    }
+		echo '<table class="wp-list-table widefat fixed striped table-view-list">';
+		echo '<thead><tr>';
+		echo '<th>' . esc_html__( 'Folder', 'mivama-media-folders' ) . '</th>';
+		echo '<th>' . esc_html__( 'Parent', 'mivama-media-folders' ) . '</th>';
+		echo '<th>' . esc_html__( 'Files', 'mivama-media-folders' ) . '</th>';
+		echo '<th>' . esc_html__( 'Actions', 'mivama-media-folders' ) . '</th>';
+		echo '</tr></thead><tbody>';
 
-    public function handle_folder_page_create()
-    {
-        $this->require_folder_management('mivama_mf_create_folder');
+		foreach ( $folders as $folder ) {
+			$edit_url   = add_query_arg(
+				array(
+					'page'        => 'mivama-media-folders',
+					'edit_folder' => absint( $folder['id'] ),
+				),
+				admin_url( 'upload.php' )
+			);
+			$view_url   = add_query_arg(
+				array(
+					'mode'                 => 'list',
+					'post_type'            => 'attachment',
+					self::FILTER_QUERY_ARG => absint( $folder['id'] ),
+				),
+				admin_url( 'upload.php' )
+			);
+			$delete_url = wp_nonce_url(
+				add_query_arg(
+					array(
+						'action'    => 'mivama_mf_delete_folder',
+						'folder_id' => absint( $folder['id'] ),
+					),
+					admin_url( 'admin-post.php' )
+				),
+				'mivama_mf_delete_folder'
+			);
 
-        $name      = isset($_POST['folder_name']) ? sanitize_text_field(wp_unslash($_POST['folder_name'])) : '';
-        $parent_id = isset($_POST['folder_parent']) ? absint(wp_unslash($_POST['folder_parent'])) : 0;
+			echo '<tr>';
+			echo '<td><strong>' . esc_html( str_repeat( '-- ', absint( $folder['depth'] ) ) . $folder['name'] ) . '</strong><br><code>' . esc_html( $folder['slug'] ) . '</code></td>';
+			echo '<td>' . ( $folder['parent_name'] ? esc_html( $folder['parent_name'] ) : '<span class="mivama-folder-empty">' . esc_html__( 'No parent', 'mivama-media-folders' ) . '</span>' ) . '</td>';
+			echo '<td><a href="' . esc_url( $view_url ) . '">' . esc_html( number_format_i18n( (int) $folder['count'] ) ) . '</a></td>';
+			echo '<td>';
+			echo '<a class="button button-small" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'mivama-media-folders' ) . '</a> ';
+			echo '<a class="button button-small" href="' . esc_url( $view_url ) . '">' . esc_html__( 'View files', 'mivama-media-folders' ) . '</a> ';
+			echo '<a class="button button-small button-link-delete" href="' . esc_url( $delete_url ) . '" onclick="return confirm(\'' . esc_js( __( 'Delete this folder? Media files will not be deleted.', 'mivama-media-folders' ) ) . '\');">' . esc_html__( 'Delete', 'mivama-media-folders' ) . '</a>';
+			echo '</td>';
+			echo '</tr>';
+		}
 
-        $result  = $this->create_or_get_folder($name, $parent_id);
-        $message = is_wp_error($result) ? 'error' : (! empty($result['existed']) ? 'exists' : 'created');
+		echo '</tbody></table>';
+	}
 
-        wp_safe_redirect(add_query_arg('mivama_mf_message', $message, admin_url('upload.php?page=mivama-media-folders')));
-        exit;
-    }
+	/**
+	 * Process a create-folder request.
+	 */
+	public function handle_folder_page_create() {
+		$this->require_folder_management();
+		check_admin_referer( 'mivama_mf_create_folder' );
 
-    public function handle_folder_page_update()
-    {
-        $folder_id = isset($_POST['folder_id']) ? absint(wp_unslash($_POST['folder_id'])) : 0;
-        $this->require_folder_management('mivama_mf_update_folder_' . $folder_id);
+		$name      = isset( $_POST['folder_name'] ) ? sanitize_text_field( wp_unslash( $_POST['folder_name'] ) ) : '';
+		$parent_id = isset( $_POST['folder_parent'] ) ? absint( wp_unslash( $_POST['folder_parent'] ) ) : 0;
 
-        $term = $folder_id ? get_term($folder_id, self::TAXONOMY) : null;
-        if (! $term || is_wp_error($term)) {
-            wp_safe_redirect(add_query_arg('mivama_mf_message', 'error', admin_url('upload.php?page=mivama-media-folders')));
-            exit;
-        }
+		$result  = $this->create_or_get_folder( $name, $parent_id );
+		$message = is_wp_error( $result ) ? 'error' : ( ! empty( $result['existed'] ) ? 'exists' : 'created' );
 
-        $name      = isset($_POST['folder_name']) ? sanitize_text_field(wp_unslash($_POST['folder_name'])) : '';
-        $parent_id = isset($_POST['folder_parent']) ? absint(wp_unslash($_POST['folder_parent'])) : 0;
+		wp_safe_redirect( add_query_arg( 'mivama_mf_message', $message, admin_url( 'upload.php?page=mivama-media-folders' ) ) );
+		exit;
+	}
 
-        if ('' === trim($name) || $folder_id === $parent_id || $this->is_descendant_term($parent_id, $folder_id)) {
-            wp_safe_redirect(add_query_arg('mivama_mf_message', 'error', admin_url('upload.php?page=mivama-media-folders&edit_folder=' . $folder_id)));
-            exit;
-        }
+	/**
+	 * Process an update-folder request.
+	 */
+	public function handle_folder_page_update() {
+		$this->require_folder_management();
+		check_admin_referer( 'mivama_mf_update_folder' );
 
-        $result = wp_update_term($folder_id, self::TAXONOMY, array(
-            'name'   => $name,
-            'parent' => $parent_id,
-        ));
+		$folder_id = isset( $_POST['folder_id'] ) ? absint( wp_unslash( $_POST['folder_id'] ) ) : 0;
+		$term      = $folder_id ? get_term( $folder_id, self::TAXONOMY ) : null;
+		if ( ! $term || is_wp_error( $term ) ) {
+			wp_safe_redirect( add_query_arg( 'mivama_mf_message', 'error', admin_url( 'upload.php?page=mivama-media-folders' ) ) );
+			exit;
+		}
 
-        $message = is_wp_error($result) ? 'error' : 'updated';
-        wp_safe_redirect(add_query_arg('mivama_mf_message', $message, admin_url('upload.php?page=mivama-media-folders')));
-        exit;
-    }
+		$name      = isset( $_POST['folder_name'] ) ? sanitize_text_field( wp_unslash( $_POST['folder_name'] ) ) : '';
+		$parent_id = isset( $_POST['folder_parent'] ) ? absint( wp_unslash( $_POST['folder_parent'] ) ) : 0;
 
-    public function handle_folder_page_delete()
-    {
-        $folder_id = isset($_GET['folder_id']) ? absint(wp_unslash($_GET['folder_id'])) : 0;
-        $this->require_folder_management('mivama_mf_delete_folder_' . $folder_id, 'GET');
+		if ( '' === trim( $name ) || $folder_id === $parent_id || $this->is_descendant_term( $parent_id, $folder_id ) ) {
+			wp_safe_redirect( add_query_arg( 'mivama_mf_message', 'error', admin_url( 'upload.php?page=mivama-media-folders&edit_folder=' . $folder_id ) ) );
+			exit;
+		}
 
-        if ($folder_id > 0) {
-            wp_delete_term($folder_id, self::TAXONOMY);
-        }
+		$result = wp_update_term(
+			$folder_id,
+			self::TAXONOMY,
+			array(
+				'name'   => $name,
+				'parent' => $parent_id,
+			)
+		);
 
-        wp_safe_redirect(add_query_arg('mivama_mf_message', 'deleted', admin_url('upload.php?page=mivama-media-folders')));
-        exit;
-    }
+		$message = is_wp_error( $result ) ? 'error' : 'updated';
+		wp_safe_redirect( add_query_arg( 'mivama_mf_message', $message, admin_url( 'upload.php?page=mivama-media-folders' ) ) );
+		exit;
+	}
 
-    private function require_folder_management($nonce_action, $method = 'POST')
-    {
-        if (! current_user_can('upload_files')) {
-            wp_die(esc_html__('You do not have permission to manage media folders.', 'mivama-media-folders'));
-        }
+	/**
+	 * Process a delete-folder request.
+	 */
+	public function handle_folder_page_delete() {
+		$this->require_folder_management();
+		check_admin_referer( 'mivama_mf_delete_folder' );
 
-        $nonce = 'POST' === $method
-            ? (isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash($_POST['_wpnonce'])) : '')
-            : (isset($_GET['_wpnonce']) ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '');
+		$folder_id = isset( $_GET['folder_id'] ) ? absint( wp_unslash( $_GET['folder_id'] ) ) : 0;
+		if ( $folder_id > 0 ) {
+			wp_delete_term( $folder_id, self::TAXONOMY );
+		}
 
-        if (! wp_verify_nonce($nonce, $nonce_action)) {
-            wp_die(esc_html__('Security check failed.', 'mivama-media-folders'));
-        }
-    }
+		wp_safe_redirect( add_query_arg( 'mivama_mf_message', 'deleted', admin_url( 'upload.php?page=mivama-media-folders' ) ) );
+		exit;
+	}
+
+	/**
+	 * Require the capability used for structural folder management.
+	 */
+	private function require_folder_management() {
+		if ( ! current_user_can( self::MANAGE_CAPABILITY ) ) {
+			wp_die( esc_html__( 'You do not have permission to manage media folders.', 'mivama-media-folders' ) );
+		}
+	}
 }
