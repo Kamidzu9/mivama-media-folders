@@ -4,7 +4,7 @@ Tags: media library, folders, attachments, admin
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.4
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,12 @@ This plugin does not physically move files on your server.
 It assigns folder terms to attachments, which keeps all existing image/file URLs stable.
 
 == Changelog ==
+
+= 1.5.0 =
+* Added a dedicated media-folder management capability with authorization and nonce regression coverage.
+* Added reproducible CI, WordPress integration tests, Plugin Check, release ZIP validation and clean install/activation smoke testing.
+* Added verified automated GitHub release preparation with synchronized version metadata and SHA-256 checksums.
+* Updated supported GitHub Actions dependencies and documented non-destructive uninstall behavior.
 
 = 1.4.4 =
 * Refactored the plugin into smaller include files.
