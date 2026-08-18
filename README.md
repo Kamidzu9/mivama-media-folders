@@ -57,13 +57,26 @@ GitHub Actions tests the minimum supported WordPress 6.0 branch and the current 
 
 ## Releases
 
-Build an installable plugin archive with:
+Prepare a new version on a release branch:
 
 ```bash
+php bin/bump-version.php 1.5.0
+composer version
 bash bin/build-release.sh
 ```
 
-The generated archive is `dist/mivama-media-folders.zip`. Release tags use `vX.Y.Z`; the tag, plugin header, class version constant and WordPress `Stable tag` must remain consistent. Tagged releases are verified, tested, packaged and published through GitHub Actions.
+The bump helper updates the plugin header, `Mivama_Media_Folders::VERSION`, the WordPress `Stable tag` and the changelog heading together. Commit those changes through a normal pull request and merge only after CI is green.
+
+After the version bump is merged to `main`, open **Actions → Release → Run workflow**, select `main`, and enter the version without the `v` prefix. The release workflow then:
+
+1. verifies that the requested version matches every version declaration,
+2. reruns linting, coding standards, PHP compatibility and integration tests,
+3. builds the installable ZIP,
+4. generates a SHA-256 checksum,
+5. creates the `vX.Y.Z` tag, and
+6. publishes the GitHub Release with the ZIP and checksum.
+
+Pushing an existing `vX.Y.Z` tag remains supported and goes through the same verification and packaging gates.
 
 ## Security
 
