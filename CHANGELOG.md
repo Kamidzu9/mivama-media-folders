@@ -13,6 +13,10 @@ All notable changes to Mivama Media Folders are documented here.
 - Pull-request release ZIP validation that rejects development-only files.
 - One-command version preparation helper for synchronized release metadata.
 - Manual GitHub Actions release dispatch with verified version, ZIP checksum and automatic tag creation.
+- WordPress Plugin Check against the built release distribution.
+- Clean-WordPress install and activation smoke testing for the generated release ZIP.
+- Release checksum verification before and after artifact transfer.
+- WordPress.org FAQ covering URL stability, folder deletion, nesting, permissions and uninstall data retention.
 
 ### Changed
 - Structural folder creation, editing and deletion are separated from attachment assignment permissions.
@@ -20,6 +24,7 @@ All notable changes to Mivama Media Folders are documented here.
 - Contributor guidance documents branch protection and release/security gates.
 - GitHub Actions checkout/upload/download dependencies are updated to their current Dependabot-proposed major versions.
 - Release artifacts use short retention to avoid unnecessary Actions storage usage.
+- Tagged and manually dispatched releases now repeat Plugin Check and ZIP activation verification before publishing.
 
 ### Fixed
 - WordPress 7 test bootstrap configuration and duplicate test constant warnings.
