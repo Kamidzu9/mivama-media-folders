@@ -6,6 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.4.4
 License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Adds folder management to the native WordPress Media Library without moving files or changing media URLs.
 
@@ -34,6 +35,32 @@ Features:
 2. Activate the plugin.
 3. Go to Media > Folders to create folders.
 4. Open Media Library and assign files to folders from attachment details or list bulk actions.
+
+== Frequently Asked Questions ==
+
+= Does Mivama Media Folders move uploaded files? =
+
+No. Folders are stored as taxonomy terms assigned to attachments. Physical files stay in their existing WordPress uploads directory.
+
+= Will existing media URLs change? =
+
+No. Assigning, moving or removing a media item from a folder does not change its file path or URL.
+
+= Can folders be nested? =
+
+Yes. Media folders are hierarchical and can contain child folders.
+
+= What happens to media when I delete a folder? =
+
+Deleting a media folder does not delete the attachments or physical files. The affected media remains available in the WordPress Media Library.
+
+= What happens when I deactivate or remove the plugin? =
+
+The plugin does not delete attachments or physical media files. Folder taxonomy data is intentionally not purged by an uninstall routine, so removing the plugin does not perform destructive media cleanup.
+
+= Who can manage folder structures? =
+
+Folder creation, editing and deletion use the dedicated `manage_media_folders` capability. The plugin grants it to trusted roles that can manage WordPress categories. Assigning attachments continues to respect normal WordPress media and per-attachment permissions.
 
 == Important ==
 
