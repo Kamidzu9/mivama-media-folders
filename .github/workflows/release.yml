@@ -4,9 +4,19 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (for example 1.5.0)'
+        required: true
+        type: string
 
 permissions:
   contents: read
+
+concurrency:
+  group: release-${{ github.ref }}-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   verify:
@@ -24,12 +34,40 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           coverage: none
           tools: composer:v2
+      - name: Require main for manual releases
+        if: github.event_name == 'workflow_dispatch'
+        run: test "${GITHUB_REF_NAME}" = "main"
+      - name: Resolve and verify release version
+        id: release
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          VERSION="$(php -r '$c=file_get_contents("mivama-media-folders.php"); preg_match("/^ \\* Version:\\s*([^\\s]+)$/m",$c,$m); echo $m[1];')"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            RELEASE_TAG="v${REQUESTED_VERSION}"
+          else
+            RELEASE_TAG="${GITHUB_REF_NAME}"
+          fi
+          test "${RELEASE_TAG}" = "v${VERSION}"
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+      - name: Ensure release tag does not already exist
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Tag ${RELEASE_TAG} already exists." >&2
+            exit 1
+          fi
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y subversion mysql-client zip
       - name: Install dependencies
@@ -41,10 +79,6 @@ jobs:
           composer compat
           composer version
           node --check assets/admin.js
-      - name: Verify tag matches plugin version
-        run: |
-          VERSION="$(php -r '$c=file_get_contents("mivama-media-folders.php"); preg_match("/^ \\* Version:\\s*([^\\s]+)$/m",$c,$m); echo $m[1];')"
-          test "${GITHUB_REF_NAME}" = "v${VERSION}"
       - name: Install WordPress tests
         run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
       - name: Test
@@ -53,11 +87,18 @@ jobs:
         run: composer test
       - name: Build release ZIP
         run: bash bin/build-release.sh
-      - uses: actions/upload-artifact@v4
+      - name: Generate checksum
+        run: sha256sum dist/mivama-media-folders.zip > dist/mivama-media-folders.zip.sha256
+      - uses: actions/upload-artifact@v7
         with:
-          name: mivama-media-folders
-          path: dist/mivama-media-folders.zip
+          name: mivama-media-folders-release
+          path: |
+            dist/mivama-media-folders.zip
+            dist/mivama-media-folders.zip.sha256
           if-no-files-found: error
+          retention-days: 1
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
 
   publish:
     needs: verify
@@ -65,11 +106,29 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
-          name: mivama-media-folders
+          name: mivama-media-folders-release
           path: dist
-      - name: Publish GitHub release
+      - name: Publish manually requested release
+        if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" dist/mivama-media-folders.zip --verify-tag --generate-notes
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+        run: |
+          gh release create "${RELEASE_TAG}" \
+            dist/mivama-media-folders.zip \
+            dist/mivama-media-folders.zip.sha256 \
+            --target "${GITHUB_SHA}" \
+            --generate-notes
+      - name: Publish tagged release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+        run: |
+          gh release create "${RELEASE_TAG}" \
+            dist/mivama-media-folders.zip \
+            dist/mivama-media-folders.zip.sha256 \
+            --verify-tag \
+            --generate-notes
