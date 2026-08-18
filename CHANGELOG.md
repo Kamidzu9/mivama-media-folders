@@ -4,6 +4,8 @@ All notable changes to Mivama Media Folders are documented here.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-18
+
 ### Added
 - Standalone repository quality, testing, CI and release foundation.
 - Reproducible Composer dependency locking and WordPress PHPUnit Polyfills support.
@@ -25,6 +27,7 @@ All notable changes to Mivama Media Folders are documented here.
 - GitHub Actions checkout/upload/download dependencies are updated to their current Dependabot-proposed major versions.
 - Release artifacts use short retention to avoid unnecessary Actions storage usage.
 - Tagged and manually dispatched releases now repeat Plugin Check and ZIP activation verification before publishing.
+- Routine Composer development and GitHub Actions minor/patch dependency updates are grouped to reduce maintenance noise.
 
 ### Fixed
 - WordPress 7 test bootstrap configuration and duplicate test constant warnings.

@@ -23,7 +23,7 @@ final class Mivama_Media_Folders {
 	use Mivama_Media_Folders_Queries;
 	use Mivama_Media_Folders_Helpers;
 
-	const VERSION            = '1.4.4';
+	const VERSION            = '1.5.0';
 	const TAXONOMY           = 'mivama_media_folder';
 	const FIELD_KEY          = 'mivama_media_folder_term_id';
 	const NONCE_ACTION       = 'mivama_media_folders_nonce';
