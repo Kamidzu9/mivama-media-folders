@@ -69,3 +69,59 @@ jobs:
             echo 'Release ZIP contains development files.' >&2
             exit 1
           fi
+      - name: Generate and verify checksum
+        run: |
+          sha256sum dist/mivama-media-folders.zip > dist/mivama-media-folders.zip.sha256
+          sha256sum -c dist/mivama-media-folders.zip.sha256
+
+  plugin-check:
+    name: WordPress Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Build release distribution
+        run: bash bin/build-release.sh
+      - name: Check release distribution
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: dist/mivama-media-folders
+          strict: true
+
+  release-smoke:
+    name: Release ZIP smoke test
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: wp-cli
+      - name: Install smoke-test dependencies
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+      - name: Build release ZIP
+        run: bash bin/build-release.sh
+      - name: Install and activate release ZIP
+        env:
+          DB_NAME: wordpress_smoke
+          DB_USER: root
+          DB_PASS: root
+          DB_HOST: 127.0.0.1
+          WP_VERSION: 7.0.2
+        run: bash bin/smoke-install.sh
