@@ -51,17 +51,21 @@ Require branches to be up to date before merging and dismiss stale approvals whe
 
 ## Releases
 
-Release tags use the form `vX.Y.Z`. The plugin header version, `Mivama_Media_Folders::VERSION`, and the `readme.txt` stable tag must match before a release can be built.
+The first public release is `1.0.0`. Later releases follow semantic versioning and tags use the form `vX.Y.Z`.
+
+The plugin header version, `Mivama_Media_Folders::VERSION`, and the `readme.txt` stable tag must match before a release can be built.
 
 Prepare a release version on a normal branch:
 
 ```bash
-php bin/bump-version.php 1.5.0
+php bin/bump-version.php 1.0.0
 composer version
 bash bin/build-release.sh
 ```
 
-Merge the version change only after all required checks are green. Then run **Actions → Release → Run workflow** from `main` and enter the same version without the `v` prefix.
+For later releases, replace `1.0.0` with the intended semantic version.
+
+Merge a version change only after all required checks are green and the manual checklist in `TESTING.md` is complete. Then run **Actions → Release → Run workflow** from `main` and enter the same version without the `v` prefix.
 
 The release workflow repeats quality checks and integration tests, runs WordPress Plugin Check against the built distribution, installs and activates the generated ZIP on clean WordPress, verifies the SHA-256 checksum, and only then publishes the GitHub Release.
 
