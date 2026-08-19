@@ -9,7 +9,7 @@ composer install
 For integration tests, create a local MySQL/MariaDB test database and run:
 
 ```bash
-bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
+bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.1
 composer test
 ```
 
@@ -30,15 +30,17 @@ Pull-request CI additionally validates the release ZIP checksum, runs WordPress 
 
 Keep changes focused, add or update tests for behavior changes, update the changelog for user-facing changes, and do not commit `vendor/` or generated release archives.
 
+Independent approval is not required for routine repository changes. The technical CI gates are the release-quality source of truth.
+
 ## Coding standards
 
 PHP follows the WordPress Coding Standards and the plugin retains compatibility with its declared minimum PHP version.
 
-## Branch protection
+## Main branch policy
 
-Protect `main` and require changes to arrive through pull requests. Direct pushes and force pushes should remain disabled.
+Do not rely on mandatory reviewer approval as a release gate. Changes may be merged once the required automated checks pass.
 
-Required status checks should include:
+The automated gate set includes:
 
 - `Quality gates`
 - `Release package`
@@ -47,7 +49,7 @@ Required status checks should include:
 - every supported `PHP lint` matrix job
 - every supported WordPress integration matrix job
 
-Require branches to be up to date before merging and dismiss stale approvals when new commits are pushed. Repository administrators should follow the same merge gates except for documented emergency recovery.
+Force pushes should still be avoided because they destroy useful repository history. Release safety comes from the reproducible build, test matrix, Plugin Check, checksum verification and manual release checklist rather than a required reviewer.
 
 ## Releases
 
