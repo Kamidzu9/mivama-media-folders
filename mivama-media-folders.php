@@ -3,7 +3,7 @@
  * Plugin Name: Mivama Media Folders
  * Plugin URI:  https://mivama.de/
  * Description: Adds real folder management to the native WordPress Media Library. Folders are stored safely as a hierarchical taxonomy on attachments, so file URLs never break.
- * Version:     1.5.0
+ * Version:     1.0.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author:      Mivama
