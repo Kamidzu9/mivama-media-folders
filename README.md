@@ -1,90 +1,64 @@
 # Mivama Media Folders
 
-A lightweight WordPress plugin that adds hierarchical folders to the native Media Library without physically moving uploaded files or changing their URLs.
+Mivama Media Folders adds folder management to the native WordPress Media Library without moving files or changing media URLs.
 
 ## Features
 
-- Create, edit and delete media folders
-- Nested folder hierarchy
-- Assign attachments to folders
-- Folder filters in list and grid views
-- Bulk move and remove-from-folder actions
-- Unassigned media filter
-- Native WordPress admin integration
+- Folder management for the native Media Library
+- Nested folders
+- Attachment assignment from media details
+- List and grid filtering
+- Bulk move/remove actions
+- Dedicated folder-management capability
+- Non-destructive taxonomy-based organization
 
 ## Requirements
 
-- WordPress 6.0+
-- PHP 7.4+
+- WordPress 6.0 or newer
+- PHP 7.4 or newer
 
-## Installation
-
-1. Download or clone this repository.
-2. Copy the plugin directory to `wp-content/plugins/mivama-media-folders` or install a release ZIP from WordPress Admin.
-3. Activate **Mivama Media Folders**.
-4. Open **Media → Folders**.
-
-## How it works
-
-Folders are stored as a private hierarchical taxonomy attached to media items. The plugin does **not** move physical files, so existing media URLs remain stable.
+The current `1.0.0` release candidate is explicitly tested through WordPress 7.1.
 
 ## Development
 
-Install development dependencies:
-
 ```bash
 composer install
-```
-
-Run the local quality gate:
-
-```bash
 composer check
 ```
 
-The repository checks PHP syntax, WordPress coding standards, PHP 7.4+ compatibility, version consistency and PHPUnit integration tests.
-
-### WordPress integration tests
-
-Install a WordPress test suite and run PHPUnit:
+Build the installable distribution with:
 
 ```bash
-bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
-composer test
+bash bin/build-release.sh
 ```
 
-GitHub Actions tests the minimum supported WordPress 6.0 branch and the current stable WordPress branch across representative PHP versions.
+The generated ZIP is written to `dist/mivama-media-folders.zip`. Development-only files, release testing documentation and WordPress.org directory assets are excluded from that package.
+
+## Testing
+
+Pull requests run PHP linting, WordPress Coding Standards, PHP compatibility checks, version consistency, WordPress Plugin Check, release-package validation, checksum verification, clean ZIP installation/activation and the supported WordPress integration matrix.
+
+Before publishing a release, complete the repository's `TESTING.md` checklist against the exact generated ZIP.
+
+## WordPress.org assets
+
+Directory-only assets are staged under `wordpress-org/` and intentionally excluded from the installable plugin ZIP. This directory is reserved for the WordPress.org icon, banners and screenshots; it is not runtime plugin code.
 
 ## Releases
 
-Prepare a new version on a release branch:
+The first public version is `1.0.0`. Later releases follow semantic versioning.
+
+Prepare a release version on a normal branch:
 
 ```bash
-php bin/bump-version.php 1.5.0
+php bin/bump-version.php 1.0.0
 composer version
 bash bin/build-release.sh
 ```
 
-The bump helper updates the plugin header, `Mivama_Media_Folders::VERSION`, the WordPress `Stable tag` and the changelog heading together. Commit those changes through a normal pull request and merge only after CI is green.
+Once automated gates and the manual checklist pass, run **Actions → Release → Run workflow** from `main` with the version without the `v` prefix. The workflow repeats the release gates, builds the ZIP, verifies its SHA-256 checksum, creates the version tag and publishes the GitHub Release.
 
-After the version bump is merged to `main`, open **Actions → Release → Run workflow**, select `main`, and enter the version without the `v` prefix. The release workflow then:
-
-1. verifies that the requested version matches every version declaration,
-2. reruns linting, coding standards, PHP compatibility and integration tests,
-3. builds the installable ZIP,
-4. generates a SHA-256 checksum,
-5. creates the `vX.Y.Z` tag, and
-6. publishes the GitHub Release with the ZIP and checksum.
-
-Pushing an existing `vX.Y.Z` tag remains supported and goes through the same verification and packaging gates.
-
-## Security
-
-See `SECURITY.md` for vulnerability reporting guidance.
-
-## Contributing
-
-See `CONTRIBUTING.md` before opening a pull request.
+Merging code does not itself publish a release.
 
 ## License
 
