@@ -8,9 +8,9 @@ Automated CI is required but does not replace the wp-admin checks below. Test th
 
 - [ ] Confirm `mivama-media-folders.php` reports version `1.0.0`.
 - [ ] Confirm `Mivama_Media_Folders::VERSION` is `1.0.0`.
-- [ ] Confirm `readme.txt` uses `Stable tag: 1.0.0`.
+- [ ] Confirm `readme.txt` uses `Stable tag: 1.0.0` and `Tested up to: 7.1`.
 - [ ] Confirm `composer version` passes.
-- [ ] Confirm the PR has green `Quality gates`, `Release package`, `WordPress Plugin Check`, `Release ZIP smoke test`, all PHP lint jobs and all WordPress integration jobs.
+- [ ] Confirm the PR has green `Quality gates`, `Release package`, `WordPress Plugin Check`, `Release ZIP smoke test`, all PHP lint jobs and all WordPress integration jobs, including WordPress 7.1.
 - [ ] Build the candidate with `bash bin/build-release.sh`.
 - [ ] Install only the generated plugin ZIP on the manual test site.
 
@@ -104,7 +104,7 @@ Create or use one account for each role.
 
 Only after every required item above passes:
 
-- [ ] Merge the final release-readiness PR to `main`.
+- [ ] Merge the final release-readiness PR to `main` after the automated gates are green.
 - [ ] Run **Actions > Release > Run workflow** with version `1.0.0`.
 - [ ] Confirm tag `v1.0.0` is created by the workflow.
 - [ ] Confirm the GitHub Release contains the installable ZIP and SHA-256 checksum.
@@ -117,7 +117,7 @@ Only after every required item above passes:
 
 Before directory submission:
 
-- [ ] Validate `readme.txt` with the WordPress.org readme validator.
+- [ ] Confirm strict WordPress Plugin Check remains green for the final ZIP.
 - [ ] Review all user-visible strings for translation readiness with the `mivama-media-folders` text domain.
-- [ ] Prepare icon, banner and screenshots outside the plugin distribution ZIP.
+- [ ] Add final icon, banner and screenshots under `wordpress-org/` (excluded from the plugin ZIP).
 - [ ] Confirm the submitted ZIP is byte-for-byte the intended `1.0.0` release artifact where the submission process permits it.
