@@ -123,5 +123,5 @@ jobs:
           DB_USER: root
           DB_PASS: root
           DB_HOST: 127.0.0.1
-          WP_VERSION: 7.0.2
+          WP_VERSION: 7.1
         run: bash bin/smoke-install.sh
