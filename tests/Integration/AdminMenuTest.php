@@ -112,7 +112,7 @@ class Mivama_Media_Folders_Admin_Menu_Test extends WP_UnitTestCase {
 		$submenu = array();
 		Mivama_Media_Folders::instance()->register_admin_menu();
 
-		$items = isset( $submenu['upload.php'] ) ? $submenu['upload.php'] : array();
+		$items   = isset( $submenu['upload.php'] ) ? $submenu['upload.php'] : array();
 		$matches = array_filter(
 			$items,
 			static function ( $item ) {
