@@ -65,7 +65,7 @@ Use several images plus at least one non-image attachment.
 
 ## 7. Permissions
 
-Create or use one account for each role.
+The structural capability model and `Media > Folders` menu visibility for the default administrator, editor, author and subscriber roles are covered by automated integration tests. The checks below remain a manual wp-admin smoke test for the actual UI and normal WordPress media behavior.
 
 ### Administrator
 - [ ] Can access `Media > Folders`.
@@ -73,15 +73,15 @@ Create or use one account for each role.
 - [ ] Can assign permitted attachments.
 
 ### Editor
-- [ ] Expected folder-management access is available according to the `manage_media_folders` capability grant.
+- [ ] Can access `Media > Folders` according to the `manage_media_folders` capability grant.
 - [ ] Attachment operations still respect normal WordPress media permissions.
 
 ### Author
-- [ ] Cannot gain structural folder-management privileges unless explicitly granted by WordPress capabilities.
+- [ ] Does not receive structural folder-management navigation by default.
 - [ ] Cannot modify attachments that WordPress does not permit the author to edit.
 
 ### Subscriber
-- [ ] Cannot manage folder structures.
+- [ ] Does not receive structural folder-management navigation by default.
 - [ ] Cannot use protected folder-management AJAX/actions.
 
 ## 8. Security/error handling
@@ -104,7 +104,7 @@ Create or use one account for each role.
 
 Only after every required item above passes:
 
-- [ ] Merge the final release-readiness PR to `main` after the automated gates are green.
+- [ ] Merge the final release-readiness PR to `main`.
 - [ ] Run **Actions > Release > Run workflow** with version `1.0.0`.
 - [ ] Confirm tag `v1.0.0` is created by the workflow.
 - [ ] Confirm the GitHub Release contains the installable ZIP and SHA-256 checksum.
@@ -117,7 +117,6 @@ Only after every required item above passes:
 
 Before directory submission:
 
-- [ ] Confirm strict WordPress Plugin Check remains green for the final ZIP.
-- [ ] Review all user-visible strings for translation readiness with the `mivama-media-folders` text domain.
-- [ ] Add final icon, banner and screenshots under `wordpress-org/` (excluded from the plugin ZIP).
+- [ ] Confirm strict WordPress Plugin Check passes against the final release distribution, including readme and i18n checks.
+- [ ] Prepare icon, banner and screenshots in `wordpress-org/` outside the plugin distribution ZIP.
 - [ ] Confirm the submitted ZIP is byte-for-byte the intended `1.0.0` release artifact where the submission process permits it.
