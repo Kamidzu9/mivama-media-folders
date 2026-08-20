@@ -13,8 +13,9 @@ All notable public changes to Mivama Media Folders are documented here.
 - Attachment assignment from media details plus list/grid filtering and bulk move/remove actions.
 - Dedicated `manage_media_folders` capability for structural folder management.
 - Authorization, nonce, invalid-input and folder CRUD regression coverage.
+- Automated administrator/editor/author/subscriber capability and `Media > Folders` navigation coverage.
 - Reproducible Composer dependency locking and WordPress PHPUnit Polyfills support.
-- WordPress integration tests across the supported PHP/WordPress compatibility matrix.
+- WordPress integration tests across the supported PHP/WordPress compatibility matrix, including WordPress 7.1.
 - Pull-request release ZIP validation that rejects development-only files.
 - WordPress Plugin Check against the built release distribution.
 - Clean WordPress install and activation smoke testing for the generated release ZIP.
@@ -24,7 +25,7 @@ All notable public changes to Mivama Media Folders are documented here.
 
 ### Changed
 - Structural folder creation, editing and deletion are separated from attachment assignment permissions.
-- WordPress compatibility metadata reflects the tested WordPress 7.0 target while retaining WordPress 6.0 as the declared minimum.
+- WordPress compatibility metadata reflects the tested WordPress 7.1 target while retaining WordPress 6.0 as the declared minimum.
 - Release artifacts use short retention to reduce unnecessary Actions storage usage.
 - Routine Composer development and GitHub Actions minor/patch dependency updates are grouped to reduce maintenance noise.
 
