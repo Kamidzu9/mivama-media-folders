@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (for example 1.5.0)'
+        description: 'Version to publish (for example 1.0.0)'
         required: true
         type: string
 
@@ -80,7 +80,7 @@ jobs:
           composer version
           node --check assets/admin.js
       - name: Install WordPress tests
-        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.0.2
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 7.1
       - name: Integration tests
         env:
           WP_TESTS_DIR: /tmp/wordpress-tests-lib
@@ -98,7 +98,7 @@ jobs:
           DB_USER: root
           DB_PASS: root
           DB_HOST: 127.0.0.1
-          WP_VERSION: 7.0.2
+          WP_VERSION: 7.1
         run: bash bin/smoke-install.sh
       - name: Generate and verify checksum
         run: |
